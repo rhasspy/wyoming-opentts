@@ -1,23 +1,19 @@
-.PHONY: docker local latest
+.PHONY: local run update
 
 VERSION := 1.0.0
-DOCKER_PLATFORMS := linux/amd64,linux/arm64,linux/arm/v7
+TAG := rhasspy/wyoming-opentts
+PLATFORMS := linux/amd64,linux/arm64,linux/arm/v7
+HOST := 0.0.0.0
+PORT := 10300
 
-docker:
-	docker buildx build . \
-      -f Dockerfile \
-      --platform $(DOCKER_PLATFORMS) \
-      -t synesthesiam/wyoming-opentts:$(VERSION)
+all:
+	docker buildx build . --platform "$(PLATFORMS)" --tag "$(TAG):$(VERSION)" --push
 
-latest:
-	docker buildx build . \
-      -f Dockerfile \
-      --platform $(DOCKER_PLATFORMS) \
-      -t synesthesiam/wyoming-opentts:$(VERSION) \
-      -t synesthesiam/wyoming-opentts:latest \
-      --push
+update:
+	docker buildx build . --platform "$(PLATFORMS)" --tag "$(TAG):latest" --push
 
 local:
-	docker buildx build . \
-      -f Dockerfile \
-      -t synesthesiam/wyoming-opentts:$(VERSION) --load
+	docker build . -t "$(TAG):$(VERSION)" --build-arg TARGETARCH=amd64
+
+run:
+	docker run -it -p '$(PORT):$(PORT)' "$(TAG):$(VERSION)" --uri 'tcp://$(HOST):$(PORT)' --debug
