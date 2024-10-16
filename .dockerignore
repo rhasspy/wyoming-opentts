@@ -1,0 +1,5 @@
+*
+!local/
+!wyoming_opentts/*.py
+!requirements.txt
+!docker/*
